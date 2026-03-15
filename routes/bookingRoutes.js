@@ -1,16 +1,20 @@
 const express = require('express');
 const router = express.Router();
-const { createBooking, getMyBookings } = require('../controllers/bookingController');
 const { protect } = require('../middleware/authMiddleware');
 
-router.post('/', protect, createBooking);
-router.get('/my-bookings', protect, getMyBookings);
-
-module.exports = router;
-// ... existing imports
+// Import all controller functions exactly ONCE
 const { createBooking, getMyBookings, getAllBookings } = require('../controllers/bookingController');
 
-// Add this line (In a real app, you'd add 'isAdmin' middleware here too)
+// --- ROUTES ---
+
+// 1. Create a new booking (Must be logged in)
+router.post('/', protect, createBooking);
+
+// 2. Get my personal bookings (Must be logged in)
+router.get('/my-bookings', protect, getMyBookings);
+
+// 3. Get ALL bookings (Admin only - for the dashboard)
 router.get('/admin/all', getAllBookings); 
 
+// Export the router exactly ONCE at the very bottom
 module.exports = router;
