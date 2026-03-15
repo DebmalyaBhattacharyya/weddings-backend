@@ -1,31 +1,36 @@
 const express = require('express');
 const cors = require('cors');
-const cookieParser = require('cookie-parser'); // NEW
+const cookieParser = require('cookie-parser');
 require('dotenv').config();
 const db = require('./config/db'); 
 
 const app = express();
 
-// UPDATED CORS: We must specify the frontend origin to allow secure cookies
+// PERFECT CORS: This allows Vercel to log in securely
 app.use(cors({
   origin: [
-    'http://localhost:5173', // Keep local for your own testing
-    'https://wedding-frontend-flax.vercel.app' // Your live Vercel URL
+    'http://localhost:5173', 
+    'https://wedding-frontend-flax.vercel.app' 
   ],
   credentials: true 
 }));
 
 app.use(express.json()); 
-app.use(cookieParser()); // NEW: Parses cookies into req.cookies
+app.use(cookieParser());
+
+// CRITICAL FIX: This allows your frontend to see the profile images
+app.use('/uploads', express.static('uploads'));
 
 // Routes
 const vendorRoutes = require('./routes/vendorRoutes');
 const authRoutes = require('./routes/authRoutes');
-const inquiryRoutes = require('./routes/inquiryRoutes'); // NEW
+const inquiryRoutes = require('./routes/inquiryRoutes');
+const bookingRoutes = require('./routes/bookingRoutes'); // ADDED: Bookings Route
 
 app.use('/api/vendors', vendorRoutes);
 app.use('/api/auth', authRoutes);
-app.use('/api/inquiries', inquiryRoutes); // NEW
+app.use('/api/inquiries', inquiryRoutes);
+app.use('/api/bookings', bookingRoutes); // ADDED: Bookings URL path
 
 app.get('/', (req, res) => {
   res.send('Wedding Services API is fully operational...');
