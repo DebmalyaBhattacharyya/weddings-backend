@@ -8,8 +8,11 @@ const app = express();
 
 // UPDATED CORS: We must specify the frontend origin to allow secure cookies
 app.use(cors({
-  origin: 'http://localhost:5173', // This will be your Vite React port
-  credentials: true // Allows cookies to be sent back and forth
+  origin: [
+    'http://localhost:5173', // Keep local for your own testing
+    'https://wedding-frontend-flax.vercel.app' // Your live Vercel URL
+  ],
+  credentials: true 
 }));
 
 app.use(express.json()); 
