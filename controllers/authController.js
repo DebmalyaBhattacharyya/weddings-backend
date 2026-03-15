@@ -8,12 +8,12 @@ const generateToken = (id) => {
   return jwt.sign({ id }, process.env.JWT_SECRET, { expiresIn: '7d' });
 };
 
-// Helper: Set Cookie
+// Helper: Set Cookie (FIXED FOR VERCEL + RENDER)
 const setCookie = (res, token) => {
   res.cookie('jwt', token, {
     httpOnly: true,
-    secure: process.env.NODE_ENV === 'production', 
-    sameSite: 'strict',
+    secure: true,       // CRITICAL: Tells browser it's HTTPS
+    sameSite: 'none',   // CRITICAL: Allows Vercel to talk to Render
     maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
   });
 };
@@ -67,7 +67,13 @@ const loginUser = async (req, res) => {
 };
 
 const logoutUser = (req, res) => {
-  res.cookie('jwt', '', { httpOnly: true, expires: new Date(0) });
+  // FIXED: Kills the cookie instantly by setting the expiration date to the past
+  res.cookie('jwt', '', {
+    httpOnly: true,
+    secure: true,
+    sameSite: 'none',
+    expires: new Date(0) 
+  });
   res.status(200).json({ message: 'Logged out successfully' });
 };
 
@@ -77,7 +83,6 @@ const updateProfile = async (req, res) => {
   const { name, phone, address } = req.body;
   const userId = req.user.id;
   
-  // If Multer uploaded a file, use that path. Otherwise, keep existing image.
   const profile_image = req.file ? `/uploads/${req.file.filename}` : req.body.profile_image;
 
   try {
